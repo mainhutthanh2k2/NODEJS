@@ -1,0 +1,165 @@
+<form class='mt-4' action="/course/permanently_deleted_trash" method="post">
+  <h4> bai hat da xoa</h4>
+  <a href="/me/store/course">Cancel</a>
+   <div class='mt-4 d-flex align-items-center'>
+    <div class='form-check'>
+      <input
+        class='from-check-input b'
+        value=''
+        id='checkbox-all'
+        type='checkbox'
+      />
+      <label for='checkbox-all' class="from-check-lable "> Chon tat ca </label>
+    </div>
+    <select
+      style='width: 200px; margin:5px'
+      class='form-select form-select-sm'
+      aria-label='Default select example'
+      name="action"
+      required
+    >
+      <option value="">--chon--</option>
+      <option value='restore'>khoi phuc tat ca</option>
+       <option value='delete'>xoa vinh vien</option>
+
+    </select>
+    <button class=' btn btn-primary btn-sm btn-delete disabled' >khoi phuc/Xoa</button>
+  </div>
+  <table class='table mt-4'>
+    <thead>
+      <tr>
+        <th scope='col' colspan="2">#</th>
+        <th scope='col'>Ten bai hat</th>
+        <th scope='col'>thoi gian tao</th>
+        <th scope='col'>thoi gian xem</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each update}}
+        <tr>
+          <td>
+            <div class="form-check">
+              <input type="checkbox"
+              value="{{this._id}}"
+              name="checkbox_restore[]"
+              >
+            </div>
+          </td>
+          <th scope='row'>{{sum @index 1}}</th>
+          <td>{{this.name}}</td>
+          <td>{{this.description}}</td>
+          <td>{{this.createdAt}}</td>
+          <td>
+            <a href=''class='btn btn-link btn_restore ' data-id="{{this._id}}">khoi phuc</a>{{!//}}
+             
+            <a
+            id="permanently_deleted"
+              href=''
+              class='btn btn-link'
+              data-bs-toggle='modal'
+              data-bs-target='#form_delete'{{!//}}
+             data-_id="{{this._id}}"
+            >xoa vinh vien</a>
+          </td>
+        </tr>
+        {{else}}
+        <tr>
+           <td colspan="5" class="text-center">thung rac trong <a href="/me/store/course">tro ve</a></td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</form>
+{{! form_delete }}
+<div id='form_delete' class='modal' tabindex='-1'>{{!//}}
+  <div class='modal-dialog'>
+    <div class='modal-content'>
+      <div class='modal-header'>
+        <h5 class='modal-title'>Xoa danh sach nhac</h5>
+        <button
+        id=""
+          type='button'
+          class='btn-close'
+          data-bs-dismiss='modal'
+          aria-label='Close'
+        ></button>
+      </div>
+      <div class='modal-body'>
+        <p>Xoa khong the khoi phuc</p>
+      </div>
+      <div class='modal-footer'>
+        <button
+          id="btn_delete"
+          type='button'
+          class='btn btn-secondary'        
+        >Xoa vinh vien</button>
+        <button type='button' class='btn btn-primary'  data-bs-dismiss='modal'>cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<form method="post" id="form_delete_music"></form>
+<form method="post" id="form_restore_music"></form> 
+
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+ const form_delete = document.getElementById('form_delete')
+if (form_delete) {
+  const fromCheckLable = $('#checkbox-all')// nut checkbox chon tat ca
+  const checkbox_restore = $('input[name="checkbox_restore[]"]')
+  const btn_deleted_update= $('.btn-delete ')
+  console.log(btn_deleted_update)
+   var id
+    const form_delete_music = document.forms['form_delete_music']
+    const form_restore_music = document.forms['form_restore_music']
+    const button_deleted = document.querySelector('#btn_delete') 
+    form_delete.addEventListener('show.bs.modal', function(event) {
+    const button = event.relatedTarget  
+    id = button.getAttribute('data-id')
+  })
+   // dựa vào chon tat cả để đánh dấu check
+   fromCheckLable.click(function(){
+    const click_otal = $(this).prop('checked')
+    console.log(click_otal)
+    checkbox_restore.prop('checked',click_otal)
+    seen_button_delete()
+   })
+    // chọn checkbox dưới khóa học
+     // chọn cái cuối cùng sẽ check vào chữ chọn tất cả
+     checkbox_restore.change(function(){
+        const quantity = checkbox_restore.length === $('input[name="checkbox_restore[]"]:checked').length
+        fromCheckLable.prop('checked',quantity)
+        seen_button_delete()
+     })
+// nut xoa tat ca
+  function seen_button_delete(){
+    const button_delete_update =  $('input[name="checkbox_restore[]"]:checked').length
+    const three = button_delete_update>0 ? btn_deleted_update.removeClass('disabled'):btn_deleted_update.addClass('disabled')
+  }
+//
+   var permanently_deleted = document.querySelectorAll('#permanently_deleted').forEach(item=>{
+    item.addEventListener('click',e=>{
+      e.preventDefault()
+     var  restore = e.srcElement.getAttribute('data-_id')// lay id cai can khoi phuc   
+      button_deleted.addEventListener('click',f=>{
+        form_delete_music.action='/course/'+restore+'/permanently_deleted?_method=DELETE'
+         form_delete_music.submit()
+      })
+    })
+  })    
+  //
+  
+  //
+  var button_restoree = document.querySelectorAll('.btn_restore').forEach(item=>{
+    item.addEventListener('click',e=>{
+      e.preventDefault()
+     var restore = e.srcElement.getAttribute('data-id')// lay id cai can khoi phuc
+      form_restore_music.action = '/course/'+restore+'/restore?_method=PATCH'
+      form_restore_music.submit()
+    })
+  })
+
+
+}
+</script>
+

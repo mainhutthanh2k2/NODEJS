@@ -1,0 +1,161 @@
+<form class='mt-4' name="form_container" method="post" action="/course/perform_delete">
+  <h4> Danh sach bai hat</h4>
+  <a href='/me/Trash/course'>Thung rac ({{countDelete}})</a>
+  <div class='mt-4 d-flex align-items-center'>
+    <div class='form-check'>
+      <input
+        class='from-check-input b'
+        value=''
+        id='checkbox-all'
+        type='checkbox'
+      />
+      <label for='checkbox-all' class="from-check-lable"> Chon tat ca </label>
+    </div>
+    <select
+      style='width: 200px; margin:5px'
+      class='form-select form-select-sm'
+      aria-label='Default select example'
+      name="action"
+      required
+      
+    >
+      <option value="">--chon--</option>
+      <option value='delete'>xoa</option>
+
+    </select>
+    <button class=' btn btn-primary btn-sm btn-delete disabled ' >Xoa</button>
+  </div>
+ 
+  <table class='table mt-4'>
+    <thead>
+      <tr>
+        <th scope='col' colspan="2">#</th>
+        <th scope='col'>
+          Ten bai hat
+           {{{sort "name" _sort}}}      
+        </th>
+        <th scope='col'>
+          thoi gian tao
+            {{{sort "createdAt" _sort}}}      
+          </th>
+        <th scope='col'>
+          thoi gian xem
+             {{{sort "updatedAt" _sort}}}  
+          </th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each update}}
+        <tr>
+          <td>
+            <div class='form-check'>
+              <input
+                class='from-check-input'
+                type='checkbox'
+                value='{{this._id}}'
+                name='id_checkbox[]'
+              />
+            </div>
+          </td>
+          <th scope='row'>{{sum @index 1}}</th>
+          <td>{{this.name}}</td>
+          <td>{{this.createdAt}}</td>
+          <td>{{this.updatedAt}}</td>
+          <td>
+            <a href='/course/{{this._id}}/edit' class='btn btn-link'>sua</a>
+            <a
+              href=''
+              class='btn btn-link'
+              data-bs-toggle='modal'
+              data-bs-target='#form_delete'
+              data-id='{{this._id}}'
+            >xoa</a>
+          </td>
+        </tr>
+      {{else}}
+        <tr>
+          <td colspan='5' class='text-center'>Chua co bai hat nao
+            <a href='/course/create'>dang bai hat</a></td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</form>
+{{! form_delete }}
+<div id='form_delete' class='modal' tabindex='-1'>//
+  <div class='modal-dialog'>
+    <div class='modal-content'>
+      <div class='modal-header'>
+        <h5 class='modal-title'>Xoa danh sach nhac</h5>
+        <button
+          id=''
+          type='button'
+          class='btn-close'
+          data-bs-dismiss='modal'
+          aria-label='Close'
+        ></button>
+      </div>
+      <div class='modal-body'>
+        <p>Ban co muon xoa</p>
+      </div>
+      <div class='modal-footer'>
+        <button id='btn_delete' type='button' class='btn btn-secondary'>Xoa
+        </button>
+        <button
+          type='button'
+          class='btn btn-primary'
+          data-bs-dismiss='modal'
+        >cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<form method='post' id='form_delete_music'></form>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<Script >
+  const form_delete = document.getElementById('form_delete') 
+  const all_checkbox = $('#checkbox-all')// nut checkbox chon tat ca
+  const from_check_input = $('input[name="id_checkbox[]"]') // checkbox danh sách music
+  const btn_delete = $('.btn-delete')// nut xoa
+  if (form_delete) {
+    var id
+    const form_delete_music = document.forms['form_delete_music']    
+     const form_container = document.forms['form_container'] 
+    const deletee = document.getElementById('btn_delete')
+    form_delete.addEventListener('show.bs.modal', function(e) { 
+      const button = e.relatedTarget 
+      id = button.getAttribute('data-id') }) 
+      deletee.onclick = function()
+      { 
+      form_delete_music.action ='/course/'+ id +'?_method=DELETE'
+      form_delete_music.submit() 
+      } 
+      // chon tat ca
+      all_checkbox.change(function(){
+        const click_total = $(this).prop('checked')
+        console.log(click_total)
+        from_check_input.prop('checked',click_total) // dựa vào chon tat cả để đánh dấu check
+        render_count()
+      })   
+     // chọn checkbox dưới khóa học
+     // chọn cái cuối cùng sẽ check vào chữ chọn tất cả
+    from_check_input.change(function(){
+      const checkbox_list = from_check_input.length === $('input[name="id_checkbox[]"]:checked').length    
+      all_checkbox.prop('checked',checkbox_list)
+      render_count()
+    })
+    {{!-- event submit xoa --}}
+    btn_delete.on('submit',function(){
+      var submittable = !$(this).hasClass('disabled')
+      if(!submittable){
+         e.preventDefault()
+      }
+    })
+    // option select
+    function render_count(){
+      const count_checkbox = $('input[name="id_checkbox[]"]:checked').length
+      const return_checkbox_all = count_checkbox>0 ? btn_delete.removeClass('disabled'): btn_delete.addClass('disabled')
+    }
+   
+  }
+</Script>
